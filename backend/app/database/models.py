@@ -42,3 +42,11 @@ class Employee(Base):
     
     team_members = relationship("Employee",back_populates="manager")
     
+#Leave Model
+class Leave(Base):
+    __tablename__="leaves"
+    id = Column(Integer,primary_key=True,index=True)
+    employee_id = Column(Integer,ForeignKey("employees.id"))
+    leave_type = Column(String,nullable=False)
+    reason = Column(String,nullable=False)
+    status = Column(String,default="pending")

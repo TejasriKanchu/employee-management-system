@@ -50,3 +50,11 @@ class Leave(Base):
     leave_type = Column(String,nullable=False)
     reason = Column(String,nullable=False)
     status = Column(String,default="pending")
+    
+#Attendance Model
+class Attendance(Base):
+    __tablename__ ="attendance"
+    id = Column(Integer,primary_key=True,index = True)
+    employee_id = Column(Integer,ForeignKey("employees.id"))
+    date = Column(String,nullable=False)
+    status = Column(String,nullable=False)

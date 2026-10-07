@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from ..database.connection import SessionLocal
 from ..database.models import User
-from ..schemas.user import UserCreate, LoginRequest
+from ..schemas.user import UserCreate, LoginRequest, ChangePassword
 from ..utils.security import hash_password, verify_password
 from ..utils.auth import create_access_token, verify_token
 from ..dependencies.auth import require_role
@@ -113,3 +113,24 @@ def manager_dashboard(current_user:dict = Depends(require_role("manager"))):
         "user_id":current_user["user_id"],
         "role":current_user["role"]
     }
+    
+@router.put("/change-password")
+def change_password(
+    password_data : ChangePassword,
+    db:Session = Depends(get_db),
+    current_user : dict = Depends(require_role("employee"))
+):
+    user = db.query(User).filter(
+        User.id == current_user["user_id"]
+    ).first()
+    
+    if not verify_password(
+        password_data.old_password,
+        user.password
+    ):
+        return {"message": " Old password is incorrect"}
+    
+    user.password = hash_password(password_data.new_password)
+    
+    db.commit()
+    return {"message":"Password changed successfully"}

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from ..database.connection import SessionLocal
 from ..database.models import Employee
-from ..schemas.employee import EmployeeCreate
+from ..schemas.employee import EmployeeCreate, EmployeeProfileUpdate
 from ..dependencies.auth import require_role
 
 router = APIRouter()
@@ -96,3 +96,36 @@ def get_team_employee(employee_id : int,
             return employee
         
     return None
+
+@router.get("/my-profile")
+def get_my_profile(
+    db:Session = Depends(get_db),
+    current_user : dict = Depends(require_role("employee"))
+):
+    employee = db.query(Employee).filter(Employee.user_id == current_user["user_id"]).first()
+    return employee
+
+@router.put("/my-profile")
+def update_my_profile(
+    profile:EmployeeProfileUpdate,
+    db:Session = Depends(get_db),
+    current_user : dict = Depends(require_role("employee"))
+):
+    employee = db.query(Employee).filter(Employee.user_id == current_user["user_id"]).first()
+    employee.name = profile.name
+    employee.phone = profile.phone
+    
+    db.commit()
+    db.refresh(employee)
+    
+    return employee
+
+@router.get("/my-manager")
+def get_my_manager(
+    db:Session = Depends(get_db),
+    current_user : dict = Depends(require_role("employee"))
+):
+    employee = db.query(Employee).filter(Employee.user_id == current_user["user_id"]).first()
+    manager = db.query(Employee).filter(Employee.id == employee.manager_id).first()
+    
+    return manager

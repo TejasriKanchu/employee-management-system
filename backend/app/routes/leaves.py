@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Depends
+from fastapi import APIRouter,Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from ..database.connection import SessionLocal
@@ -68,3 +68,9 @@ def get_my_leaves(
     
     return db.query(Leave).filter(Leave.employee_id == employee.id).all()
 
+@router.get("/admin/leaves")
+def get_all_leaves(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_role("admin"))
+):
+    return db.query(Leave).all()

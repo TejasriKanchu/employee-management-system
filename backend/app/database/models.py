@@ -1,5 +1,5 @@
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime, Date
 from sqlalchemy.orm import relationship
 from .connection import Base
 
@@ -58,3 +58,15 @@ class Attendance(Base):
     employee_id = Column(Integer,ForeignKey("employees.id"))
     date = Column(String,nullable=False)
     status = Column(String,nullable=False)
+
+#Task Model   
+class Task(Base):
+    __tablename__ = "tasks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    assigned_to = Column(Integer, ForeignKey("employees.id"), nullable=False)
+    priority = Column(String, default="Medium")
+    status = Column(String, default="Pending")
+    due_date = Column(Date, nullable=True)
